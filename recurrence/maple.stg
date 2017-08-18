@@ -1,0 +1,285 @@
+group Maple;
+
+
+indentUnit()    ::= ""
+nolabel()       ::= ""
+commentLabel()  ::= ""
+labelFormat()   ::= ""
+continueLabel() ::= ""
+
+
+INTEGER() ::= "integer"
+REAL() ::= "real"
+DOUBLEPRECISION() ::= "real"
+COMPLEX() ::= "complex"
+DOUBLECOMPLEX() ::= "complex"
+LOGICAL() ::= "boolean"
+CHARACTER(length) ::= "string"
+
+
+functioncall(name, arguments) ::= <<
+$name$($arguments; separator=", "$)
+>>
+
+fct(name) ::= "$name$"
+variable(name) ::= "$name$"
+alpha() ::= "alpha"
+beta() ::= "beta"
+gamma() ::= "gamma"
+delta() ::= "delta"
+epsilon() ::= "epsilon"
+zeta() ::= "zeta"
+eta() ::= "eta"
+theta() ::= "theta"
+iota() ::= "iota"
+kappa() ::= "kappa"
+lambda() ::= "lambda"
+mu() ::= "mu"
+nu() ::= "nu"
+xi() ::= "xi"
+omicron() ::= "omicron"
+pi() ::= "pi"
+rho() ::= "rho"
+sigma() ::= "sigma"
+tau() ::= "tau"
+upsilon() ::= "upsilon"
+phi() ::= "phi"
+chi() ::= "chi"
+psi() ::= "psi"
+omega() ::= "omega"
+
+
+arrayref(name, indices) ::= <<
+$name$[$indices; separator=", "$]
+>>
+
+vector(name,dimX,hasY,dimY) ::= <<
+vector_($name$, dimx_($dimX$) $if(hasY)$, dimy_($dimY$)$endif$)
+>>
+vectorA(name,arrayIndex,dimX) ::= <<
+vector_($name$, index_($arrayIndex$), dimx_($dimX$))
+>>
+vectorT(name,arrayIndex,dimY) ::= <<
+vector_($name$, index_($arrayIndex$), dimy_($dimY$))
+>>
+vectorproj(name,expr,k,a,b) ::= <<
+vector_($name$, proj_($expr$, $k$=$a$..$b$))
+>>
+
+parenthesis(expr) ::= "$expr$"
+noparenthesis(expr) ::= "$expr$"
+colon(a,b) ::= "($a$..$b$)"
+concat(a,b) ::= "cat($a$, $b$)"
+plus(a,b) ::= "($a$ + $b$)"
+unaryminus(a) ::= "(-$a$)"
+unaryplus(a) ::= "(+$a$)"
+minus(a,b) ::= "($a$ - $b$)"
+mult(a,b) ::= "($a$ * $b$)"
+div(a,b) ::= "($a$ / $b$)"
+power(a,b) ::= "($a$^$b$)"
+eq(a,b) ::= "($a$ = $b$)"
+neq(a,b) ::= "($a$ <> $b$)"
+lt(a,b) ::= "($a$ < $b$)"
+leq(a,b) ::= "($a$ <= $b$)"
+gt(a,b) ::= "($a$ > $b$)"
+geq(a,b) ::= "($a$ >= $b$)"
+not(a) ::= "(not $a$)"
+and(a,b) ::= "($a$ and $b$)"
+or(a,b) ::= "($a$ or $b$)"
+eqv(a,b) ::= "(not($a$ xor $b$))"
+neqv(a,b) ::= "($a$ xor $b$)"
+overwrite(a,b) ::= "overwrite($a$, $b$)"
+sum(index, a, b, expr) ::= <<
+sum($expr$, $index$ = $a$ .. $b$)
+>>
+piecewise(pieces, otherwise) ::= <<
+piecewise($pieces; separator=", "$, $otherwise$)
+>>
+piece(expr, cond) ::= <<
+$expr$, $cond$
+>>
+gammaFct(args) ::= <<
+GAMMA($args; separator=", "$)
+>>
+exp(expr) ::= <<
+exp($expr$)
+>>
+factorial(expr) ::= "($expr$)!"
+dotproduct(a,b) ::= "dotproduct_($a$, $b$)"
+
+trueconst() ::= "true"
+falseconst() ::= "false"
+hexnumber(number) ::= "convert($number$, decimal, hex)"
+complexnumber(real, img) ::= "($real$+$img$j)"
+hollerith(len, string) ::= <<
+"$string$"
+>>
+stringliteral(string) ::= <<
+"$string$"
+>>
+
+
+
+
+
+init() ::= <<
+restart:
+PrettyPrinter := proc(x)
+   local y, s, t::string, n, d, tp, tn;
+   if type( x, And('atomic', Not('indexed'))) then
+       if ( op(0,x) = Complex ) then
+               sprintf("#{ COMPLEXCONST %a %a #}", op(x)[1], op(x)[2]);
+       else
+               sprintf("%a ", x);
+       end if;
+   else
+       if type( x, 'name') then
+               t := "::array"
+       elif type( x, 'function' ) then
+               t := "::function"
+       else
+               t := ""
+       end if;
+
+       if ( type( x, 'algebraic' ) ) then
+               n, d := numer(x), denom(x);
+       else
+               d := 1;
+       end if;
+
+       if d = 1 then
+             if type(x, '`+`')  then
+                 tn, tp := selectremove( u->sgn(u)=-1, x );
+                 tn := (-1)*tn;
+             elif type(x, '`*`') then
+                 if sgn( op(1, x) ) = -1 then
+                     tn, tp := (-1)*x, 0;
+                 else
+                     tn, tp := 0, x;
+                 end if;
+             else
+                 tn := 0;    
+             end if;
+
+             if tn = 0 then
+                 #printer( op(0,x) , t, [op(x)] );
+                 sprintf("#{ %a%s %s#}", op(0,x), t, cat(seq( procname(y), y=[op(x)] )));
+             elif tp = 0 then
+                 sprintf("#{ %s %s %s #}", "-", t, cat(seq( procname(y), y=[tn] )));
+             else
+                 # group subtractions after positive terms
+                 sprintf("#{ %a%s %s#}", `-`, t, cat(seq( procname(y), y=[tp,tn] )));
+                 #printer( `-`, t, [tp, tn] );
+             end if;
+       else
+             # special case to handle rational expressions
+             sprintf("#{ %a%s %s#}", `/`, t, cat(seq( procname(y), y=[n,d] )));
+       end if;
+   end if;
+end proc:
+_Envsignum0 := 1:
+fsign := (x,y)->abs(x)*signum(y):
+sgn := proc(e)
+    `if`(type(e, '`*`') and type( op(1,e), 'negative' ) or type( e, 'negative' ), -1, 1)
+end proc:
+
+rsolve_wrapper := proc(re, inits, rvar, dep)
+    local order, eq, res;
+    eq := indets(re, rvar(anything));
+    # this is a hack, but we know the structure of our equations, so use it!
+    order := nops(map(op, eq)) - 1; # will be 0 or 1
+    if (order = 0) then
+        #piecewise(dep=0, rhs(inits), eval(rhs(re), dep=dep-1));
+        res := eval(rhs(re), dep=dep-1);
+    else
+        res := rsolve({re, inits}, rvar(dep));
+        #res := lhs(res) = convert(rhs(res), 'factorial');
+    end if;
+end proc
+>>
+
+
+eval(expr,eqns) ::= <<
+eval($expr$, {$eqns; separator=", "$})
+>>
+typeassumption(var, type) ::= "$var$::$type$"
+evalassuming(expr, hasA, assumptions) ::= <<
+eval($expr$) $if(hasA)$assuming($assumptions; separator=","$)$endif$
+>>
+evaleqn(expr, eqnset) ::= "convert(simplify(eval($expr$, $eqnset$)), 'factorial')"
+simplify(expr) ::= "simplify($expr$)"
+command(cmd) ::= "$cmd$;"
+printcommandresult(cmd) ::= "PrettyPrinter($cmd$)"
+commands(cmds) ::= <<
+$cmds; separator="; "$
+>>
+
+set(items) ::= <<
+{$items; separator=", "$}
+>>
+arrayrec() ::= "{k_ = k_0-1}"
+recidx() ::= "k_"
+recvar(var) ::= "$var$(k_)"
+recureq(var, expr) ::= "$var$(k_+1) = $expr$"
+recurinitunknown(var) ::= "$var$(0) = $var$0"
+recurinitknown(var,expr) ::= "$var$(0) = $expr$"
+solverecur(eq, init, var, idx) ::= "simplify( rsolve_wrapper($eq$, $init$, $var$, $idx$) )"
+iterations(e1, e2, e3) ::= "(($e2$ - $e1$ + $e3$) / $e3$)"
+
+abs(arguments) ::= <<
+abs($arguments; separator=", "$)
+>>
+aimag(arguments) ::= <<
+Im($arguments; separator=", "$)
+>>
+cmplx(arguments) ::= <<
+Complex($arguments; separator=", "$)
+>>
+conjg(arguments) ::= <<
+conjugate($arguments; separator=", "$)
+>>
+dble(arguments) ::= <<
+$arguments; separator=", "$
+>>
+dcmplx(arguments) ::= <<
+Complex($arguments; separator=", "$)
+>>
+dconjg(arguments) ::= <<
+conjugate($arguments; separator=", "$)
+>>
+dimag(arguments) ::= <<
+Im($arguments; separator=", "$)
+>>
+ichar(arguments) ::= <<
+convert($arguments; separator=", "$, bytes)[1]
+>>
+int(arguments) ::= <<
+trunc($arguments; separator=", "$)
+>>
+log(arguments) ::= <<
+log($arguments; separator=", "$)
+>>
+log10(arguments) ::= <<
+log10($arguments; separator=", "$)
+>>
+max(arguments) ::= <<
+max($arguments; separator=", "$)
+>>
+min(arguments) ::= <<
+min($arguments; separator=", "$)
+>>
+mod(arguments) ::= <<
+mod($arguments; separator=", "$)
+>>
+nint(arguments) ::= <<
+int($arguments; separator=", "$+fsign(0.5,$arguments; separator=", "$))
+>>
+real(arguments) ::= <<
+Re($arguments; separator=", "$)
+>>
+sign(arguments) ::= <<
+fsign($arguments; separator=", "$)
+>>
+sqrt(arguments) ::= <<
+sqrt($arguments; separator=", "$)
+>>

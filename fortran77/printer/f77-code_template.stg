@@ -1,0 +1,401 @@
+group Fortran77;
+
+
+indentUnit()    ::= "  "
+nolabel()       ::= "       "
+commentLabel()  ::= "c      "
+labelFormat()   ::= "%6s "
+continueLabel() ::= "     & "
+
+comment(text) ::= <<
+c      <text>
+>>
+
+commentBlock(comments) ::= <<
+
+<comments; separator="\n">
+c
+>>
+
+
+
+programUnits(units) ::= <<
+<units; separator="\nc\nc\n">
+>>
+
+
+inputs(inputs) ::= <<
+c%&    RevengTool: Input parameters
+<inputs; separator="\n">
+
+>>
+outputs(outputs) ::= <<
+c%&    RevengTool: Output parameters
+<outputs; separator="\n">
+
+>>
+updates(updates) ::= <<
+c%&    RevengTool: Updated parameters
+<updates; separator="\n">
+
+>>
+
+subroutine(comment, name, parameters, inputs, outputs, updates, subprogramBody) ::= <<
+       subroutine <name> (<parameters; separator=", ">)
+
+<subprogramBody>
+>>
+
+function(comment, rettype, retinit, name, parameters, inputs, outputs, updates, subprogramBody) ::= <<
+       <rettype> function <name> (<parameters; separator=", ">)
+<inputs><outputs><updates>
+<subprogramBody>
+>>
+
+program(comment, name, subprogramBody) ::= <<
+       program <name>
+<subprogramBody>
+>>
+
+
+constants(constants) ::= <<
+c%&    RevengTool: Local constants
+<constants; separator="\n">
+
+>>
+externals(externals) ::= <<
+c%&    RevengTool: External routines
+<externals; separator="\n">
+
+>>
+intrinsics(intrinsics) ::= <<
+c%&    RevengTool: Intrinsic functions
+<intrinsics; separator="\n">
+
+>>
+globals(globals) ::= <<
+c%&    RevengTool: Global variables
+<globals; separator="\n">
+
+>>
+locals(locals) ::= <<
+c%&    RevengTool: Local variables
+<locals; separator="\n">
+
+>>
+stfuncs(stfuncs) ::= <<
+c%&    RevengTool: Statement Functions
+<stfuncs; separator="\n">
+
+>>
+
+subprogramBody(constants, externals, intrinsics, globals, locals, stfuncs, statements) ::= <<
+<constants><externals><intrinsics><globals><locals><stfuncs>
+c%&    RevengTool: Executable statements
+<statements; separator="\n">
+>>
+
+
+
+parameterdef(param) ::= "<param>"
+
+INTEGER() ::= "integer"
+REAL() ::= "real"
+DOUBLEPRECISION() ::= "double precision"
+COMPLEX() ::= "complex"
+DOUBLECOMPLEX() ::= "double complex"
+LOGICAL() ::= "logical"
+CHARACTER(length) ::= "character*<length>"
+
+typedef(type, name, variable, arraydimensions) ::= <<
+       <type> <name><if(!variable.scalar)>(<arraydimensions; separator=",">)<endif>
+>>
+
+constant(type, const, expr) ::= <<
+       <type> <const>
+       parameter <const> = (<expr>)
+>>
+
+external(type, routine, name) ::= <<
+<if(!routine.subroutine)>       <type> <name><\n><endif>       external <name>
+>>
+
+intrinsic(function) ::= <<
+       intrinsic <function>
+>>
+
+statementFunc(function, params, expr) ::= <<
+       <function>(<params; separator=", ">) = <expr>
+>>
+
+common(block, variables) ::= <<
+       common /<block>/, <variables; separator=", ">
+>>
+
+
+parallel(statements) ::= <<
+
+<statements; separator="\n">
+>>
+
+parallelstatement(label, indent, statement) ::= <<
+<label><indent><statement>
+>>
+
+initialisations(label, indent, statement) ::= <<
+<label><indent><statement>
+>>
+
+statement(label, indent, statement) ::= <<
+<label><indent><statement>
+>>
+
+
+
+ifStatement(expr, thenblock, elseifblock, elseblock, indent) ::= <<
+if (<expr>) <thenblock><elseifblock><elseblock>
+<indent>end if
+>>
+thenBlock(statements) ::= <<
+then
+<statements; separator="\n">
+>>
+elseIfBlock(expr, thenblock, indent) ::= <<
+
+<indent>else if (<expr>) <thenblock>
+>>
+elseBlock(statements, indent) ::= <<
+
+<indent>else
+<statements; separator="\n">
+>>
+
+
+doStatement(labelRef, loopVar, init, termination, hasIncr, increment, statements) ::= <<
+do <labelRef>, <loopVar> = <init>, <termination><if (hasIncr)>, <increment><endif>
+<statements; separator="\n">
+>>
+
+
+assignment(var, value) ::= <<
+<var> = <value>
+>>
+
+arrayassign(idx, assign) ::= <<
+<assign>
+>>
+
+
+goto(label) ::= <<
+go to <label>
+>>
+
+
+return() ::= <<
+return
+>>
+
+continue() ::= <<
+continue
+>>
+
+call(subroutine) ::= <<
+call <subroutine>
+>>
+
+stop() ::= <<
+stop
+>>
+
+format(args) ::= <<
+format(<args; separator=", ">)
+>>
+
+write(ctlList, ioList) ::= <<
+write (<ctlList>) <ioList>
+>>
+controlInfoList(items) ::= <<
+<items; separator=", ">
+>>
+controlInfoItem(ctl, value) ::= <<
+<ctl>=<value>
+>>
+
+read() ::= <<
+read('statement not yet supported')
+>>
+
+open() ::= <<
+open('statement not yet supported')
+>>
+
+close() ::= <<
+close('statement not yet supported')
+>>
+
+end() ::= <<
+end
+>>
+
+
+
+functioncall(name, arguments) ::= <<
+<name>(<arguments; separator=", ">)
+>>
+
+subroutinecall(name, arguments) ::= <<
+call <name>(<arguments; separator=", ">)
+>>
+
+fct(name) ::= "<name>"
+variable(name) ::= "<name>"
+alpha() ::= "alpha"
+beta() ::= "beta"
+gamma() ::= "gamma"
+delta() ::= "delta"
+epsilon() ::= "epsilon"
+zeta() ::= "zeta"
+eta() ::= "eta"
+theta() ::= "theta"
+iota() ::= "iota"
+kappa() ::= "kappa"
+lambda() ::= "lambda"
+mu() ::= "mu"
+nu() ::= "nu"
+xi() ::= "xi"
+omicron() ::= "omicron"
+pi() ::= "pi"
+rho() ::= "rho"
+sigma() ::= "sigma"
+tau() ::= "tau"
+upsilon() ::= "upsilon"
+phi() ::= "phi"
+chi() ::= "chi"
+psi() ::= "psi"
+omega() ::= "omega"
+
+
+arrayref(name, indices) ::= <<
+<name>(<indices; separator=", ">)
+>>
+
+vector(name,dimX,hasY,dimY) ::= "<name>"
+vectorA(name,arrayIndex,dimX) ::= "<name>(<arrayIndex>)"
+vectorT(name,arrayIndex,dimY) ::= "transpose(<name>, <arrayIndex>, <dimY>)"
+vectorproj(name,expr,k,a,b) ::= "proj(<name>, <a>, <b>, <expr>)"
+
+
+parenthesis(expr) ::= "<expr>"
+noparenthesis(expr) ::= "<expr>"
+colon(a,b) ::= "<a>:<b>"
+concat(a,b) ::= "<a> // <b>"
+plus(a,b) ::= "(<a> + <b>)"
+unaryminus(a) ::= "(-<a>)"
+unaryplus(a) ::= "(+<a>)"
+varArrayDim() ::= "*"
+minus(a,b) ::= "(<a> - <b>)"
+mult(a,b) ::= "(<a> * <b>)"
+div(a,b) ::= "(<a> / <b>)"
+power(a,b) ::= "(<a>**<b>)"
+eq(a,b) ::= "(<a> .eq. <b>)"
+neq(a,b) ::= "(<a> .neq. <b>)"
+lt(a,b) ::= "(<a> .lt. <b>)"
+leq(a,b) ::= "(<a> .le. <b>)"
+gt(a,b) ::= "(<a> .gt. <b>)"
+geq(a,b) ::= "(<a> .ge. <b>)"
+not(a) ::= "(.not. <a>)"
+and(a,b) ::= "(<a> .and. <b>)"
+or(a,b) ::= "(<a> .or. <b>)"
+xor(a,b) ::= "(<a> .xor. <b>)"
+eor(a,b) ::= "(<a> .eor. <b>)"
+eqv(a,b) ::= "(<a> .eqv. <b>)"
+neqv(a,b) ::= "(<a> .neqv. <b>)"
+sum(index, a, b, expr) ::= <<
+sum(<expr>, <index>, <a>, <b>)
+>>
+piecewise(pieces, otherwise) ::= <<
+piecewise(<pieces; separator=", ">, <otherwise>)
+>>
+piece(expr, cond) ::= <<
+<expr>, <cond>
+>>
+range(var, from, to) ::= "<var>=<from>..<to>"
+gammaFct(args) ::= <<
+GAMMA(<args; separator=", ">)
+>>
+exp(expr) ::= <<
+exp(<expr>)
+>>
+factorial(expr) ::= "factorial(<expr>)"
+dotproduct(a,b) ::= "dotprod(<a>, <b>)"
+eval(expr,eqns) ::= <<
+eval($expr$, {$eqns; separator=", "$})
+>>
+
+trueconst() ::= ".true."
+falseconst() ::= ".false."
+hexnumber(number) ::= "z'<number>'"
+complexnumber(real, img) ::= "(<real>, <img>)"
+hollerith(len, string) ::= "<len>h<string>"
+stringliteral(string) ::= <<
+'<string>'
+>>
+
+abs(arguments) ::= <<
+abs(<arguments; separator=", ">)
+>>
+aimag(arguments) ::= <<
+aimag(<arguments; separator=", ">)
+>>
+cmplx(arguments) ::= <<
+cmplx(<arguments; separator=", ">)
+>>
+conjg(arguments) ::= <<
+conjg(<arguments; separator=", ">)
+>>
+dble(arguments) ::= <<
+dble(<arguments; separator=", ">)
+>>
+dcmplx(arguments) ::= <<
+dcmplx(<arguments; separator=", ">)
+>>
+dconjg(arguments) ::= <<
+dconjg(<arguments; separator=", ">)
+>>
+dimag(arguments) ::= <<
+dimag(<arguments; separator=", ">)
+>>
+ichar(arguments) ::= <<
+ichar(<arguments; separator=", ">)
+>>
+int(arguments) ::= <<
+int(<arguments; separator=", ">)
+>>
+log(arguments) ::= <<
+log(<arguments; separator=", ">)
+>>
+log10(arguments) ::= <<
+log10(<arguments; separator=", ">)
+>>
+max(arguments) ::= <<
+max(<arguments; separator=", ">)
+>>
+min(arguments) ::= <<
+min(<arguments; separator=", ">)
+>>
+mod(arguments) ::= <<
+mod(<arguments; separator=", ">)
+>>
+nint(arguments) ::= <<
+nint(<arguments; separator=", ">)
+>>
+real(arguments) ::= <<
+real(<arguments; separator=", ">)
+>>
+sign(arguments) ::= <<
+sign(<arguments; separator=", ">)
+>>
+sqrt(arguments) ::= <<
+sqrt(<arguments; separator=", ">)
+>>
+

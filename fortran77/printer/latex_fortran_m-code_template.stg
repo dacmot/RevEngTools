@@ -1,0 +1,452 @@
+group Fortran77;
+
+
+indentUnit()    ::= "\qquad"
+nolabel()       ::= "\hspace{10mm} & "
+commentLabel()  ::= "\hspace{10mm} & "
+labelFormat()   ::= "%6s & "
+continueLabel() ::= "\$ \blacktriangleright \$ & "
+
+
+comment(text) ::= <<
+\lnum & \hspace{10mm} & \begin{minipage}{125mm}\comments{$text$}\end{minipage} \\
+>>
+
+commentBlock(comments) ::= <<
+\$ \\
+$comments; separator="\n"$
+\lnum & \hspace{10mm} & \$\displaystyle 
+>>
+
+
+
+programUnits(units) ::= <<
+\documentclass[letterpaper]{article}
+\usepackage{fmlatex}
+\usepackage{array}
+\usepackage{longtable}		% tables that can spread over multiple pages
+\usepackage{amsmath}
+\usepackage{amsfonts}		% all sorts of extra fonts including math ones
+\usepackage{amssymb}		% some more symbols and fonts
+\usepackage{latexsym}		% some extra symbols
+\usepackage{setspace}		% control line spacing (eg. double spaced)
+\topmargin	=-15.mm	% beyond 25.mm
+\oddsidemargin	=0.mm	% beyond 25.mm
+\evensidemargin	=0.mm	% beyond 25.mm
+\headheight	=11.mm	% Header's height: from page top
+\headsep	=4.mm   % Header seperation w/ body: from headheight
+\textheight	=229.mm % Height of the text on the page
+\textwidth	=166.mm % Width of the text on the page
+\newcommand{\integers}{\mathbb{Z}}	% requires asmfont pkg
+\begin{document}
+
+
+\begin{singlespace}
+\begin{flushleft}
+\lnumreset
+\begin{longtable}{ @{} r @{} r l @{} }
+$units; separator="\n\n\n"$
+% To split an expression, paste the following at split point
+%\$ \\
+%
+%& \$\blacktriangleright\$ & \$\displaystyle  \qquad
+\end{longtable}
+\end{flushleft}
+\end{singlespace}
+
+
+\end{document}
+>>
+
+
+inputs(inputs) ::= <<
+\lnum & \hspace{10mm} & \comments{Input parameters:} \\
+$inputs; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+outputs(outputs) ::= <<
+\lnum & \hspace{10mm} & \comments{Output parameters:} \\
+$outputs; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+updates(updates) ::= <<
+\lnum & \hspace{10mm} & \comments{Updated parameters:} \\
+$updates; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+
+subroutine(comment, name, parameters, inputs, outputs, updates, subprogramBody) ::= <<
+\lnum & \$\bigstar\$  & \$\displaystyle \kw{subprogram}\ $name$ ($parameters; separator=", "$) \$ \\
+\lnum & \hspace{10mm} & \\
+$inputs$
+$outputs$
+$updates$
+$subprogramBody$
+>>
+
+function(comment, rettype, retinit, name, parameters, inputs, outputs, updates, subprogramBody) ::= <<
+\lnum & \$\bigstar\$  & \$\displaystyle \kw{subprogram}\ $name$ ($parameters; separator=", "$) \$ \\
+\lnum & \hspace{10mm} & \\
+\lnum & \hspace{10mm} & \comments{Function output:} \\
+\lnum & \hspace{10mm} & \$\displaystyle \kw{$rettype$} $retinit$ \$ \\
+\lnum & \hspace{10mm} & \\
+$inputs$
+$outputs$
+$updates$
+$subprogramBody$
+>>
+
+program(comment, name, subprogramBody) ::= <<
+\lnum & \$\bigstar\$ & \kw{subprogram} \fct{$name$} \\
+$subprogramBody$
+>>
+
+
+constants(constants) ::= <<
+\lnum & \hspace{10mm} & \comments{Local constants:} \\
+$constants; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+externals(externals) ::= <<
+\lnum & \hspace{10mm} & \comments{External routines:} \\
+$externals; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+intrinsics(intrinsics) ::= <<
+\lnum & \hspace{10mm} & \comments{Intrinsic functions:} \\
+$intrinsics; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+globals(globals) ::= <<
+\lnum & \hspace{10mm} & \comments{Global variables:} \\
+$globals; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+locals(locals) ::= <<
+\lnum & \hspace{10mm} & \comments{Local variables:} \\
+$locals; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+stfuncs(stfuncs) ::= <<
+\lnum & \hspace{10mm} & \comments{Statement Functions:} \\
+$stfuncs; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+
+subprogramBody(constants, externals, intrinsics, globals, locals, stfuncs, statements) ::= <<
+$constants$
+$externals$
+$intrinsics$
+$globals$
+$locals$
+$stfuncs$
+\lnum & \hspace{10mm} & \comments{Executable statements:} \\
+$statements; separator="\n"$
+\lnum & \hspace{10mm} & \\
+>>
+
+
+
+parameterdef(param) ::= "$param$"
+
+INTEGER() ::= "integer"
+REAL() ::= "real"
+DOUBLEPRECISION() ::= "double precision"
+COMPLEX() ::= "complex"
+DOUBLECOMPLEX() ::= "double complex"
+LOGICAL() ::= "logical"
+CHARACTER(length) ::= "character*$length$"
+
+typedef(type, name, variable, arraydimensions) ::= <<
+\lnum & \hspace{10mm} & \$\displaystyle \kw{$type$} $name$$if(!variable.scalar)$($arraydimensions; separator=","$)$endif$$if(variable.initialised)$ = $variable.initValue.text$$endif$ \$ \\
+>>
+
+constant(type, const, expr) ::= <<
+\lnum & \hspace{10mm} & \kw{$type$} \var{$const$} \\
+\lnum & \hspace{10mm} & \$\kw{parameter} \var{$const$} = ($expr$)\$ \\
+>>
+
+external(type, routine, name) ::= <<
+$if(!routine.subroutine)$\lnum & \hspace{10mm} & \kw{$type$} \fct{$name$} \\ $\n$$endif$\lnum & \hspace{10mm} & \kw{external} \fct{$name$} \\
+>>
+
+intrinsic(function) ::= <<
+\lnum & \hspace{10mm} & \kw{intrinsic} \fct{$function$} \\
+>>
+
+statementFunc(function, params, expr) ::= <<
+\lnum & \hspace{10mm} & \fct{$function$}($params; separator=", "$) = $expr$ \\
+>>
+
+common(block, variables) ::= <<
+\lnum & \hspace{10mm} & \kw{common} [\textrm{$block$}], \var{$variables; separator="}, \\var{"$} \\
+>>
+
+
+
+parallel(statements) ::= <<
+\setlength{\extrarowheight}{0mm} \left\| \begin{array}{l}
+$statements; separator="\n"$
+\end{array} \right. \setlength{\extrarowheight}{0mm}
+>>
+
+parallelstatement(label, indent, statement) ::= <<
+\displaystyle $statement$ \\
+>>
+
+initialisations(label, indent, statement) ::= " "
+
+statement(label, indent, statement) ::= <<
+\lnum & $label$ $indent$ \$\displaystyle  $statement$ \$ \\
+>>
+
+
+
+ifStatement(expr, thenblock, elseifblock, elseblock, indent) ::= <<
+\kw{if} ($expr$) $thenblock$$elseifblock$$elseblock$
+\lnum & $indent$ \$\displaystyle \kw{end if}
+>>
+thenBlock(statements) ::= <<
+\ \kw{then} \$ \\
+$statements; separator="\n"$
+>>
+elseIfBlock(expr, thenblock, indent) ::= <<
+
+\lnum & $indent$ \$\displaystyle \kw{else if} ($expr$) $thenblock$
+>>
+elseBlock(statements, indent) ::= <<
+
+\lnum & $indent$ \kw{else} \\
+$statements; separator="\n"$
+>>
+
+
+doStatement(labelRef, loopVar, init, termination, hasIncr, increment, statements) ::= <<
+\kw{do} $labelRef$, \var{$loopVar$} = $init$, $termination$$if (hasIncr)$, $increment$$endif$ \$ \\
+$statements; separator="\n"$
+\lnum &  & \$\displaystyle
+>>
+
+
+assignment(var, value) ::= <<
+$var$ \assign $value$
+>>
+
+arrayassign(idx, assign) ::= <<
+\forall $idx$ \in \integers : $assign$
+>>
+
+
+goto(label) ::= <<
+\kw{go to} $label$
+>>
+
+
+return() ::= <<
+\kw{return}
+>>
+
+continue() ::= <<
+\kw{continue}
+>>
+
+call(subroutine) ::= <<
+\kw{call} $subroutine$
+>>
+
+stop() ::= <<
+\kw{stop}
+>>
+
+format(args) ::= <<
+\fct{format}($args; separator=", "$)
+>>
+
+write(ctlList, ioList) ::= <<
+\fct{write} ($ctlList$) $ioList$
+>>
+controlInfoList(items) ::= <<
+$items; separator=", "$
+>>
+controlInfoItem(ctl, value) ::= <<
+$ctl$=$value$
+>>
+
+read() ::= <<
+\fct{read}(\textrm{`statement not yet supported'})
+>>
+
+open() ::= <<
+\fct{open}(\textrm{`statement not yet supported'})
+>>
+
+close() ::= <<
+\fct{close}(\textrm{`statement not yet supported'})
+>>
+
+end() ::= <<
+\kw{end}
+>>
+
+
+
+functioncall(name, arguments) ::= <<
+\fct{$name$}($arguments; separator=", "$)
+>>
+
+subroutinecall(name, arguments) ::= <<
+call \fct{$name$}($arguments; separator=", "$)
+>>
+
+fct(name) ::= "\fct{$name$}"
+variable(name) ::= "\var{$name$}"
+alpha() ::= "\alpha "
+beta() ::= "\beta "
+gamma() ::= "\gamma "
+delta() ::= "\delta "
+epsilon() ::= "\epsilon "
+zeta() ::= "\zeta "
+eta() ::= "\eta "
+theta() ::= "\theta "
+iota() ::= "\iota "
+kappa() ::= "\kappa "
+lambda() ::= "\lambda "
+mu() ::= "\mu "
+nu() ::= "\nu "
+xi() ::= "\xi "
+omicron() ::= "\omicron "
+pi() ::= "\pi "
+rho() ::= "\rho "
+sigma() ::= "\sigma "
+tau() ::= "\tau "
+upsilon() ::= "\upsilon "
+phi() ::= "\phi "
+chi() ::= "\chi "
+psi() ::= "\psi "
+omega() ::= "\omega "
+
+
+arrayref(name, indices) ::= <<
+$name$_{$indices; separator=", "$}
+>>
+
+vector(name,dimX,hasY,dimY) ::= <<
+\vect{$name$}\!^{$dimX$ $if(hasY)$\times $dimY$ $endif$}
+>>
+vectorA(name,arrayIndex,dimX) ::= <<
+([\vect{$name$}]_{$arrayIndex$})\!^{$dimX$}
+>>
+vectorT(name,arrayIndex,dimY) ::= <<
+(([\vect{$name$}]_{$arrayIndex$})\!^{$dimY$})^T
+>>
+vectorproj(name,expr,k,a,b) ::= <<
+\vect{$name$}\!^{$a$\,\leq\, $k$\,\leq\, $b$}_{$expr$}
+>>
+
+
+parenthesis(expr) ::= "($expr$)"
+noparenthesis(expr) ::= "$expr$"
+colon(a,b) ::= "$a$..$b$"
+concat(a,b) ::= "$a$ \\& $b$"
+plus(a,b) ::= "$a$ + $b$"
+unaryminus(a) ::= "-$a$"
+unaryplus(a) ::= "+$a$"
+varArrayDim() ::= "*"
+minus(a,b) ::= "$a$ - $b$"
+mult(a,b) ::= "$a$\, $b$"
+div(a,b) ::= "\frac{$a$}{$b$}"
+power(a,b) ::= "$a$^{$b$}"
+eq(a,b) ::= "$a$ = $b$"
+neq(a,b) ::= "$a$ \neq $b$"
+lt(a,b) ::= "$a$ < $b$"
+leq(a,b) ::= "$a$ \leq $b$"
+gt(a,b) ::= "$a$ > $b$"
+geq(a,b) ::= "$a$ \geq $b$"
+not(a) ::= "\neg $a$"
+and(a,b) ::= "$a$ \wedge $b$"
+or(a,b) ::= "$a$ \vee $b$"
+eqv(a,b) ::= "$a$ \iff $b$"
+neqv(a,b) ::= "\neg($a$ \iff $b$)"
+sum(index, a, b, expr) ::= <<
+\sum^{$b$}_{$index$=$a$} $expr$
+>>
+piecewise(pieces, otherwise) ::= <<
+\begin{cases} $pieces; separator="\\"$ \\ $otherwise$ & \textrm{otherwise} \end{cases}
+>>
+piece(expr, cond) ::= "$expr$ & $cond$"
+range(var, from, to) ::= "$from$ \leq $var$ \leq $to$"
+gammaFct(args) ::= <<
+\Gamma($args; separator=", "$)
+>>
+exp(expr) ::= "\textrm{e}^{$expr$}"
+factorial(expr) ::= "$expr$!"
+dotproduct(a,b) ::= "$a$ \cdot $b$"
+eval(expr,eqns) ::= <<
+$expr$,\ \kw{where} $eqns; separator=", "$
+>>
+
+trueconst() ::= "\kw{true}"
+falseconst() ::= "\kw{false}"
+hexnumber(number) ::= "0x$number$"
+complexnumber(real, img) ::= "($real$ + j$img$)"
+hollerith(len, string) ::= "\textrm{``$string$''}"
+stringliteral(string) ::= "\textrm{``$string$''}"
+
+abs(arguments) ::= <<
+\mid $arguments; separator=", "$\mid
+>>
+aimag(arguments) ::= <<
+\fct{aimag}($arguments; separator=", "$)
+>>
+cmplx(arguments) ::= <<
+\fct{cmplx}($arguments; separator=", "$)
+>>
+conjg(arguments) ::= <<
+\fct{conjg}($arguments; separator=", "$)
+>>
+dble(arguments) ::= <<
+\fct{dble}($arguments; separator=", "$)
+>>
+dcmplx(arguments) ::= <<
+\fct{dcmplx}($arguments; separator=", "$)
+>>
+dconjg(arguments) ::= <<
+\fct{dconjg}($arguments; separator=", "$)
+>>
+dimag(arguments) ::= <<
+\fct{dimag}($arguments; separator=", "$)
+>>
+ichar(arguments) ::= <<
+\fct{ichar}($arguments; separator=", "$)
+>>
+int(arguments) ::= <<
+\fct{int}($arguments; separator=", "$)
+>>
+log(arguments) ::= <<
+\ln $arguments; separator=", "$
+>>
+log10(arguments) ::= <<
+\log_10 $arguments; separator=", "$
+>>
+max(arguments) ::= <<
+\fct{max}($arguments; separator=", "$)
+>>
+min(arguments) ::= <<
+\fct{min}($arguments; separator=", "$)
+>>
+mod(arguments) ::= <<
+\fct{mod}($arguments; separator=", "$)
+>>
+nint(arguments) ::= <<
+\fct{nint}($arguments; separator=", "$)
+>>
+real(arguments) ::= <<
+\fct{real}($arguments; separator=", "$)
+>>
+sign(arguments) ::= <<
+\fct{sign}($arguments; separator=", "$)
+>>
+sqrt(arguments) ::= <<
+\sqrt{$arguments; separator=", "$}
+>>
+

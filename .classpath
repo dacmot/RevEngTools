@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry sourcepath="/home/oli/src/antlr-2.7.5" kind="lib" path="antlr-2.7.5.jar"/>
+	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar">
+		<attributes>
+			<attribute value="http://www.cs.uni.edu/~wallingf/teaching/062/resources/junit/javadoc/" name="javadoc_location"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="stringtemplate.jar"/>
+	<classpathentry kind="lib" path="colt.jar"/>
+	<classpathentry kind="lib" path="commons-collections-3.1.jar"/>
+	<classpathentry kind="lib" path="jung-1.7.1.jar"/>
+	<classpathentry kind="lib" path="/usr/local/maple10/java/jopenmaple.jar"/>
+	<classpathentry kind="lib" path="/usr/local/maple10/java/externalcall.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
