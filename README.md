@@ -12,7 +12,7 @@ See .classpath file.
 * colt
 * commons-collections-3.1
 * jung 1.7.1
-* jopenmaple and externalcall (Maple 10)
+* Maple 10, with jopenmaple and externalcall
 
 # Building
 
